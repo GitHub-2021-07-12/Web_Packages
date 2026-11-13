@@ -11,7 +11,7 @@ export class Server {
     static _routeRest = '/rest/';
     static _routeRestProtected = '/rest/protected/';
     static _tlsCert = null;
-    static _tlsDir = '/etc/letsencrypt/live/tpexa.ru';
+    static _tlsDir = '';
     static _tlsKey = null;
 
 
@@ -21,7 +21,7 @@ export class Server {
 
         let tlsCert = Bun.file(`${this._tlsDir}/fullchain.pem`);
         let tlsKey = Bun.file(`${this._tlsDir}/privkey.pem`);
-        this._tlsDir = tlsCert.size ? tlsCert : null;
+        this._tlsCert = tlsCert.size ? tlsCert : null;
         this._tlsKey = tlsKey.size ? tlsKey : null;
     }
 
