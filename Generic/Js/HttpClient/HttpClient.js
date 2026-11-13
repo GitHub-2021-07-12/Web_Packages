@@ -17,7 +17,7 @@ export class HttpClient {
 
     _promiseConcurrencyMethodName = 'race';
     _responsePromises = new Set();
-    _responsePromisesRetried = new Set();
+    _responseRetriedPromises = new Set();
 
 
     parallelRequestsCountMax = 10;
@@ -59,7 +59,7 @@ export class HttpClient {
             if (requestRetriesCount) {
                 if (!responseRetriedPromise) {
                     responseRetriedPromise = new ExternalPromise();
-                    this._responsePromisesRetried.add(responseRetriedPromise);
+                    this._responseRetriedPromises.add(responseRetriedPromise);
                 }
 
                 await Executor.delay(this.requestRetryDelay);
@@ -74,10 +74,10 @@ export class HttpClient {
 
         if (responseRetriedPromise) {
             responseRetriedPromise.fulfill();
-            this._responsePromisesRetried.delete(responseRetriedPromise);
+            this._responseRetriedPromises.delete(responseRetriedPromise);
         }
 
-        await Promise.allSettled(this._responsePromisesRetried);
+        await Promise.allSettled(this._responseRetriedPromises);
         responsePromise.fulfill();
         this._responsePromises.delete(responsePromise);
 
@@ -86,14 +86,14 @@ export class HttpClient {
 
     async fetchJson(url, opts = null) {
         let response = await this.fetch(url, opts);
-        let responseData = response?.ok && await response?.json().catch(() => null) || null;
+        let responseData = response?.ok && await response.json().catch(() => null) || null;
 
         return responseData;
     }
 
     async fetchText(url, opts = null) {
         let response = await this.fetch(url, opts);
-        let responseData = response?.ok && await response?.text().catch(() => null) || null;
+        let responseData = response?.ok && await response.text().catch(() => null) || null;
 
         return responseData;
     }

@@ -1004,7 +1004,7 @@ export class Component extends HTMLElement {
 
     static async init({
         abstract = false,
-        components = [],
+        // components = [],
         css = undefined,
         cssUrl = undefined,
         html = undefined,
@@ -1023,7 +1023,7 @@ export class Component extends HTMLElement {
         ObjectManager.assignProps(
             this,
             {
-                _components: new Set([...this._components, ...components]),
+                // _components: new Set([...this._components, ...components]),
                 _css: css,
                 _cssUrl: cssUrl,
                 _html: html,
