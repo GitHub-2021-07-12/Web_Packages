@@ -33,20 +33,30 @@ export class Server {
 
     _appDir = '';
     _dirCache = false;
-    _dirs = {};
-    _entryFile = null;
-    _entryPath = '';
-    _errorFile = null;
-    _errorPath = '';
+    _pathEntry = '';
+    _pathError = '';
     _port = null;
-    _responseEntry = null;
-    _responseError = null;
+    _responseEmpty = new Response();
+    _responseNotModified = new Response(null, {status: 304});
     _restMethods = {};
     _restMethodsProtected = {};
     _rootDir = '';
-    _routesEntry = [];
-    _routesError = [];
+    _routes = {};
+    // _routesDir = {};
+    // _routesEmpty = [];
+    // _routesEntry = [];
+    // _routesError = [];
     _server = null;
+
+    _routeDescriptors = {
+        empty: [],
+        entry: ['/'],
+        error: ['/*'],
+
+        dirs: {
+
+        },
+    };
 
 
     async _callRestMethod(request) {
@@ -110,41 +120,65 @@ export class Server {
         return Response.json(responseBody);
     }
 
+    _createRoutes() {
+
+    }
+
+    _sendResponse(path, request) {
+        if (request.url.includes('//www.')) {
+            return Response.redirect(request.url.replace('//www.', '//'), 301);
+        }
+        else {
+            let file = Bun.file(path);
+            let response = file.lastModified == request.headers.get('if-none-match')
+                ? this._responseNotModified.clone()
+                : new Response(file, {headers: {'etag': file.lastModified}})
+            ;
+
+            return response;
+        }
+    }
+
 
     init({
         appDir = undefined,
         dirCache = undefined,
-        dirs = undefined,
-        entryPath = undefined,
-        errorPath = undefined,
+        pathEntry = undefined,
+        pathError = undefined,
         port = undefined,
         restMethods = undefined,
         restMethodsProtected = undefined,
         rootDir = undefined,
+        routesDir = undefined,
         routesEntry = undefined,
         routesError = undefined,
+
+        routeDescriptors = undefined,
     } = {}) {
         ObjectManager.assignProps(
             this,
             {
                 _appDir: appDir,
                 _dirCache: dirCache,
-                _dirs: dirs,
-                _entryPath: entryPath,
-                _errorPath: errorPath,
+                _pathEntry: pathEntry,
+                _pathError: pathError,
                 _port: port,
                 _restMethods: restMethods,
                 _restMethodsProtected: restMethodsProtected,
                 _rootDir: rootDir,
+                _routesDir: routesDir,
                 _routesEntry: routesEntry,
                 _routesError: routesError,
+
+                _routeDescriptors: routeDescriptors,
             },
         );
 
         this._appDir = this.resolvePath(this._appDir);
         this._rootDir = this.resolvePath(this._rootDir);
-        this._responseEntry = new Response(Bun.file(this.resolvePath(this._entryPath)));
-        this._responseError = new Response(Bun.file(this.resolvePath(this._errorPath)));
+        this._pathEntry = this.resolvePath(this._pathEntry);
+        this._pathError = this.resolvePath(this._pathError);
+        this._createRoutes();
 
         return this;
     }
@@ -167,31 +201,34 @@ export class Server {
 
         let callRestMethod = this._callRestMethod.bind(this);
         let callRestMethodProtected = this._callRestMethodProtected.bind(this);
-        let dirs = {
-            ...this._dirs,
+        let routes = {};
+        let routesDir = {
+            ...this._routesDir,
             [`/${this.constructor._appDirAlias}/*`]: this._appDir,
             [`/${this.constructor._rootDirAlias}/*`]: this._rootDir,
         };
-        let routes = {};
         let routesEntry = [...this._routesEntry || [], '/'];
         let routesError = [...this._routesError || [], '/*'];
+        let sendResponseEntry = this._sendResponse.bind(this, this._pathEntry);
+        let sendResponseError = this._sendResponse.bind(this, this._pathError);
 
-        for (let k in dirs) {
+        for (let k in routesDir) {
             routes[k] = {
-                dir: this.resolvePath(dirs[k]),
+                dir: this.resolvePath(routesDir[k]),
                 statCache: this._dirCache,
             };
         }
 
+        for (let routeEmpty of this._routesEmpty) {
+            routes[this.normalizePath(routeEmpty)] = this._responseEmpty;
+        }
+
         for (let routeEntry of routesEntry) {
-            // routes[this.normalizePath(routeEntry)] = this._responseEntry;
-            routes[this.normalizePath(routeEntry)] = (request) => {
-                return request.url.includes('//www.') ? Response.redirect(this._server.url.origin, 301) : this._responseEntry.clone();
-            };
+            routes[this.normalizePath(routeEntry)] = sendResponseEntry;
         }
 
         for (let routeError of routesError) {
-            routes[this.normalizePath(routeError)] = this._responseError;
+            routes[this.normalizePath(routeError)] = sendResponseError;
         }
 
         this._server = Bun.serve({
