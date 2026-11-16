@@ -1046,7 +1046,7 @@ export class Component extends HTMLElement {
         this._createFieldAccessors();
         this._mapExternals();
         EventManager.normalizeEventHandlerDescriptors(this._eventHandlerDescriptors);
-        ObjectManager.extendProps(this, null, ...this._propsExtended);
+        ObjectManager.extendProps(this, this._propsExtended);
 
         await Executor.delay();
 

@@ -49,7 +49,7 @@ export class ObjectManager {
         return objectExtended;
     }
 
-    static extendProps(object, prototype = null, ...propNames) {
+    static extendProps(object, propNames, prototype = null) {
         prototype ??= Object.getPrototypeOf(object);
 
         for (let propName of propNames) {

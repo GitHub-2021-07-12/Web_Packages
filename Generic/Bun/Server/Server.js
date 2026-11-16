@@ -39,23 +39,17 @@ export class Server {
     _responseEmpty = new Response();
     _responseNotModified = new Response(null, {status: 304});
     _restMethods = {};
-    _restMethodsProtected = {};
+    // _restMethodsProtected = {};
     _rootDir = '';
     _routes = {};
-    // _routesDir = {};
-    // _routesEmpty = [];
-    // _routesEntry = [];
-    // _routesError = [];
     _server = null;
 
     _routeDescriptors = {
+        default: {},
+        dir: {},
         empty: [],
-        entry: ['/'],
-        error: ['/*'],
-
-        dirs: {
-
-        },
+        entry: [],
+        error: [],
     };
 
 
@@ -94,34 +88,65 @@ export class Server {
         return Response.json(responseBody);
     }
 
-    async _callRestMethodProtected(request) {
-        let method = this._restMethodsProtected[request.params.method];
-        let responseBody = {};
+    // async _callRestMethodProtected(request) {
+    //     let method = this._restMethodsProtected[request.params.method];
+    //     let responseBody = {};
 
-        if (method) {
-            let args = [];
+    //     if (method) {
+    //         let args = [];
 
-            try {
-                args = request.body ? await request.body.json() : Bun.JSON5.parse(request.params.args);
-            }
-            catch {}
+    //         try {
+    //             args = request.body ? await request.body.json() : Bun.JSON5.parse(request.params.args);
+    //         }
+    //         catch {}
 
-            try {
-                responseBody.result = await method.apply(this, args);
-            }
-            catch (error) {
-                responseBody.error = error?.message ?? error;
-            }
-        }
-        else {
-            responseBody.error = 'method';
-        }
+    //         try {
+    //             responseBody.result = await method.apply(this, args);
+    //         }
+    //         catch (error) {
+    //             responseBody.error = error?.message ?? error;
+    //         }
+    //     }
+    //     else {
+    //         responseBody.error = 'method';
+    //     }
 
-        return Response.json(responseBody);
-    }
+    //     return Response.json(responseBody);
+    // }
 
     _createRoutes() {
+        this._routes = {};
+        let callRestMethod = this._callRestMethod.bind(this);
+        let routesDir = {
+            ...this._routeDescriptors.dir,
+            [`/${this.constructor._appDirAlias}/*`]: this._appDir,
+            [`/${this.constructor._rootDirAlias}/*`]: this._rootDir,
+        };
+        let routesEntry = [...this._routeDescriptors.entry || [], '/'];
+        let routesError = [...this._routeDescriptors.error || [], '/*'];
+        let sendResponseEntry = this._sendResponse.bind(this, this._pathEntry);
+        let sendResponseError = this._sendResponse.bind(this, this._pathError);
 
+        for (let k in routesDir) {
+            this._routes[k] = {
+                dir: this.resolvePath(routesDir[k]),
+                statCache: this._dirCache,
+            };
+        }
+
+        for (let routeEmpty of this._routeDescriptors.empty || []) {
+            this._routes[this.normalizePath(routeEmpty)] = this._responseEmpty;
+        }
+
+        for (let routeEntry of routesEntry) {
+            this._routes[this.normalizePath(routeEntry)] = sendResponseEntry;
+        }
+
+        for (let routeError of routesError) {
+            this._routes[this.normalizePath(routeError)] = sendResponseError;
+        }
+
+        Object.assign(this._routes, this._routeDescriptors.default);
     }
 
     _sendResponse(path, request) {
@@ -147,12 +172,8 @@ export class Server {
         pathError = undefined,
         port = undefined,
         restMethods = undefined,
-        restMethodsProtected = undefined,
+        // restMethodsProtected = undefined,
         rootDir = undefined,
-        routesDir = undefined,
-        routesEntry = undefined,
-        routesError = undefined,
-
         routeDescriptors = undefined,
     } = {}) {
         ObjectManager.assignProps(
@@ -164,12 +185,8 @@ export class Server {
                 _pathError: pathError,
                 _port: port,
                 _restMethods: restMethods,
-                _restMethodsProtected: restMethodsProtected,
+                // _restMethodsProtected: restMethodsProtected,
                 _rootDir: rootDir,
-                _routesDir: routesDir,
-                _routesEntry: routesEntry,
-                _routesError: routesError,
-
                 _routeDescriptors: routeDescriptors,
             },
         );
@@ -199,49 +216,10 @@ export class Server {
     run() {
         if (this._server) return;
 
-        let callRestMethod = this._callRestMethod.bind(this);
-        let callRestMethodProtected = this._callRestMethodProtected.bind(this);
-        let routes = {};
-        let routesDir = {
-            ...this._routesDir,
-            [`/${this.constructor._appDirAlias}/*`]: this._appDir,
-            [`/${this.constructor._rootDirAlias}/*`]: this._rootDir,
-        };
-        let routesEntry = [...this._routesEntry || [], '/'];
-        let routesError = [...this._routesError || [], '/*'];
-        let sendResponseEntry = this._sendResponse.bind(this, this._pathEntry);
-        let sendResponseError = this._sendResponse.bind(this, this._pathError);
-
-        for (let k in routesDir) {
-            routes[k] = {
-                dir: this.resolvePath(routesDir[k]),
-                statCache: this._dirCache,
-            };
-        }
-
-        for (let routeEmpty of this._routesEmpty) {
-            routes[this.normalizePath(routeEmpty)] = this._responseEmpty;
-        }
-
-        for (let routeEntry of routesEntry) {
-            routes[this.normalizePath(routeEntry)] = sendResponseEntry;
-        }
-
-        for (let routeError of routesError) {
-            routes[this.normalizePath(routeError)] = sendResponseError;
-        }
-
         this._server = Bun.serve({
             development: false,
+            routes: this._routes,
             port: this._port,
-
-            routes: {
-                ...routes,
-                [this.normalizePath(`${this.constructor._routeRest}/:method`)]: callRestMethod,
-                [this.normalizePath(`${this.constructor._routeRest}/:method/:args`)]: callRestMethod,
-                [this.normalizePath(`${this.constructor._routeRestProtected}/:method`)]: callRestMethodProtected,
-                [this.normalizePath(`${this.constructor._routeRestProtected}/:method/:args`)]: callRestMethodProtected,
-            },
 
             tls: {
                 cert: this.constructor._tlsCert,
