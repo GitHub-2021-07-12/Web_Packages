@@ -9,10 +9,9 @@ export class Server {
     static _rootDirAlias = '$';
     static _rootDirAliasRegExp = null;
     static _routeRest = '/rest/';
-    static _routeRestProtected = '/rest/protected/';
-    static _tlsCert = null;
+    static _tlsDescriptor = null;
     static _tlsDir = '';
-    static _tlsKey = null;
+    static _tlsPort = 443;
 
 
     static init() {
@@ -21,8 +20,10 @@ export class Server {
 
         let tlsCert = Bun.file(`${this._tlsDir}/fullchain.pem`);
         let tlsKey = Bun.file(`${this._tlsDir}/privkey.pem`);
-        this._tlsCert = tlsCert.size ? tlsCert : null;
-        this._tlsKey = tlsKey.size ? tlsKey : null;
+        this._tlsDescriptor = {
+            cert: tlsCert.size ? tlsCert : null,
+            key: tlsKey.size ? tlsKey : null,
+        };
     }
 
 
@@ -39,22 +40,23 @@ export class Server {
     _responseEmpty = new Response();
     _responseNotModified = new Response(null, {status: 304});
     _restMethods = {};
-    // _restMethodsProtected = {};
     _rootDir = '';
     _routes = {};
     _server = null;
 
     _routeDescriptors = {
-        default: {},
+        detailed: {},
         dir: {},
         empty: [],
         entry: [],
         error: [],
     };
 
+    _webSocketHandler = null;
+
 
     async _callRestMethod(request) {
-        let method = this._restMethods[request.params.method];
+        let method = this._restMethods?.[request.params.scope]?.[request.params.method];
         let responseBody = {};
 
         if (method) {
@@ -66,7 +68,7 @@ export class Server {
             catch {}
 
             try {
-                responseBody.result = await method.apply(this, args);
+                responseBody.result = await method.call(this, args, request);
             }
             catch (error) {
                 responseBody.error = error?.message ?? error;
@@ -88,34 +90,7 @@ export class Server {
         return Response.json(responseBody);
     }
 
-    // async _callRestMethodProtected(request) {
-    //     let method = this._restMethodsProtected[request.params.method];
-    //     let responseBody = {};
-
-    //     if (method) {
-    //         let args = [];
-
-    //         try {
-    //             args = request.body ? await request.body.json() : Bun.JSON5.parse(request.params.args);
-    //         }
-    //         catch {}
-
-    //         try {
-    //             responseBody.result = await method.apply(this, args);
-    //         }
-    //         catch (error) {
-    //             responseBody.error = error?.message ?? error;
-    //         }
-    //     }
-    //     else {
-    //         responseBody.error = 'method';
-    //     }
-
-    //     return Response.json(responseBody);
-    // }
-
     _createRoutes() {
-        this._routes = {};
         let callRestMethod = this._callRestMethod.bind(this);
         let routesDir = {
             ...this._routeDescriptors.dir,
@@ -126,6 +101,11 @@ export class Server {
         let routesError = [...this._routeDescriptors.error || [], '/*'];
         let sendResponseEntry = this._sendResponse.bind(this, this._pathEntry);
         let sendResponseError = this._sendResponse.bind(this, this._pathError);
+
+        this._routes = {
+            [this.normalizePath(`${this.constructor._routeRest}/:scope/:method`)]: callRestMethod,
+            [this.normalizePath(`${this.constructor._routeRest}/:scope/:method/:args`)]: callRestMethod,
+        };
 
         for (let k in routesDir) {
             this._routes[k] = {
@@ -146,7 +126,7 @@ export class Server {
             this._routes[this.normalizePath(routeError)] = sendResponseError;
         }
 
-        Object.assign(this._routes, this._routeDescriptors.default);
+        Object.assign(this._routes, this._routeDescriptors.detailed);
     }
 
     _sendResponse(path, request) {
@@ -172,7 +152,6 @@ export class Server {
         pathError = undefined,
         port = undefined,
         restMethods = undefined,
-        // restMethodsProtected = undefined,
         rootDir = undefined,
         routeDescriptors = undefined,
     } = {}) {
@@ -185,7 +164,6 @@ export class Server {
                 _pathError: pathError,
                 _port: port,
                 _restMethods: restMethods,
-                // _restMethodsProtected: restMethodsProtected,
                 _rootDir: rootDir,
                 _routeDescriptors: routeDescriptors,
             },
@@ -218,46 +196,10 @@ export class Server {
 
         this._server = Bun.serve({
             development: false,
-            routes: this._routes,
             port: this._port,
-
-            tls: {
-                cert: this.constructor._tlsCert,
-                key: this.constructor._tlsKey,
-            },
-
-            websocket: {
-                idleTimeout: 0,
-                // maxPayloadLength: 1,
-                // perMessageDeflate: true,
-                publishToSelf: true,
-                sendPings: false,
-
-                close(webSocket, code, reason) {
-                    log(`Close: ${webSocket.data}, ${server.subscriberCount('chat')}, ${code}, ${reason}`);
-                },
-
-                message(webSocket, message) {
-                    log(`${webSocket.data}: ${message}`);
-
-                    webSocket.publish('chat', `${webSocket.data}: ${message}`);
-                },
-
-                open(webSocket) {
-                    webSocket.subscribe('chat');
-                    webSocket.publish('chat', `Open: ${webSocket.data}`);
-
-                    log(`Open: ${webSocket.data}, ${server.subscriberCount('chat')}`);
-                },
-
-                ping(webSocket) {
-                    log(`Ping: ${webSocket.data}`);
-                },
-
-                pong(webSocket) {
-                    log(`Pong: ${webSocket.data}`);
-                },
-            },
+            routes: this._routes,
+            tls: this._port == this.constructor._tlsPort ? this.constructor._tlsDescriptor : null,
+            websocket: this._webSocketHandler,
         });
 
         console.log(`Server.run: ${this._server.url}`);
