@@ -1,4 +1,4 @@
-import {Component} from '/Packages/Generic/Frontend/Components/Component/Component.js';
+import {Component} from '/$/Packages/Generic/Frontend/Components/Component/Component.js';
 
 
 export class Switch extends Component {

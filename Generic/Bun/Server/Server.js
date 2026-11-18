@@ -191,8 +191,14 @@ export class Server {
         return this.normalizePath(PathManager.resolve(path));
     }
 
-    run() {
+    async run() {
         if (this._server) return;
+
+        if (!this._port) {
+            let server = Bun.serve({routes: {'/': this._responseEmpty}});
+            this._port = server.port;
+            await server.stop(true);
+        }
 
         this._server = Bun.serve({
             development: false,

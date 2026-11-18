@@ -1,9 +1,9 @@
-import {GestureArea} from '/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
+import {GestureArea} from '/$/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
 
-import {AnimationManager} from '/Packages/Generic/Frontend/Units/AnimationManager/AnimationManager.js';
-import {EventManager} from '/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
+import {AnimationManager} from '/$/Packages/Generic/Frontend/Units/AnimationManager/AnimationManager.js';
+import {EventManager} from '/$/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
 
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
 
 
 export class Slider extends GestureArea {

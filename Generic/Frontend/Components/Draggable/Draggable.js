@@ -1,6 +1,6 @@
-import {GestureArea} from '/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
+import {GestureArea} from '/$/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
 
-import {Vector2d} from '/Packages/Generic/Js/Vector2d/Vector2d.js';
+import {Vector2d} from '/$/Packages/Generic/Js/Vector2d/Vector2d.js';
 
 
 export class Draggable extends GestureArea {

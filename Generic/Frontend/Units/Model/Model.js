@@ -1,6 +1,6 @@
-import {EventManager} from '/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
+import {EventManager} from '/$/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
 
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
 
 
 export class Model extends EventTarget {

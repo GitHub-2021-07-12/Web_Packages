@@ -1,4 +1,4 @@
-import {HttpClient} from '/Packages/Generic/Js/HttpClient/HttpClient.js';
+import {HttpClient} from '/$/Packages/Generic/Js/HttpClient/HttpClient.js';
 
 
 export class RestClient extends HttpClient {

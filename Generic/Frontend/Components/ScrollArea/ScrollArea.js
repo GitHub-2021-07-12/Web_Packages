@@ -1,11 +1,11 @@
-import {GestureArea} from '/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
-import {TrackBar} from '/Packages/Generic/Frontend/Components/TrackBar/TrackBar.js';
+import {GestureArea} from '/$/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
+import {TrackBar} from '/$/Packages/Generic/Frontend/Components/TrackBar/TrackBar.js';
 
-import {Renderer} from '/Packages/Generic/Frontend/Units/Renderer/Renderer.js';
+import {Renderer} from '/$/Packages/Generic/Frontend/Units/Renderer/Renderer.js';
 
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
-import {Executor} from '/Packages/Generic/Js/Executor/Executor.js';
-import {Vector2d} from '/Packages/Generic/Js/Vector2d/Vector2d.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
+import {Executor} from '/$/Packages/Generic/Js/Executor/Executor.js';
+import {Vector2d} from '/$/Packages/Generic/Js/Vector2d/Vector2d.js';
 
 
 export class ScrollArea extends GestureArea {

@@ -1,7 +1,7 @@
-import {EventManager} from '/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
+import {EventManager} from '/$/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
 
-import {Executor} from '/Packages/Generic/Js/Executor/Executor.js';
-import {ObjectManager} from '/Packages/Generic/Js/ObjectManager/ObjectManager.js';
+import {Executor} from '/$/Packages/Generic/Js/Executor/Executor.js';
+import {ObjectManager} from '/$/Packages/Generic/Js/ObjectManager/ObjectManager.js';
 
 
 export class Renderer extends EventTarget {

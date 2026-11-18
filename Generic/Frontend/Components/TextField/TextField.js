@@ -1,6 +1,6 @@
-import {TextInput} from '/Packages/Generic/Frontend/Components/TextInput/TextInput.js';
+import {TextInput} from '/$/Packages/Generic/Frontend/Components/TextInput/TextInput.js';
 
-import {RichString} from '/Packages/Generic/Js/RichString/RichString.js';
+import {RichString} from '/$/Packages/Generic/Js/RichString/RichString.js';
 
 
 export class TextField extends TextInput {

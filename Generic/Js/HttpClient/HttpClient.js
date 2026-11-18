@@ -1,6 +1,6 @@
-import {Executor} from '/Packages/Generic/Js/Executor/Executor.js';
-import {ExternalPromise} from '/Packages/Generic/Js/ExternalPromise/ExternalPromise.js';
-import {ObjectManager} from '/Packages/Generic/Js/ObjectManager/ObjectManager.js';
+import {Executor} from '/$/Packages/Generic/Js/Executor/Executor.js';
+import {ExternalPromise} from '/$/Packages/Generic/Js/ExternalPromise/ExternalPromise.js';
+import {ObjectManager} from '/$/Packages/Generic/Js/ObjectManager/ObjectManager.js';
 
 
 export class HttpClient {

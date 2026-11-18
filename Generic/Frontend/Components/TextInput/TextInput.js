@@ -1,8 +1,8 @@
-import {Component} from '/Packages/Generic/Frontend/Components/Component/Component.js';
+import {Component} from '/$/Packages/Generic/Frontend/Components/Component/Component.js';
 
-import {EventManager} from '/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
+import {EventManager} from '/$/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
 
-import {RichString} from '/Packages/Generic/Js/RichString/RichString.js';
+import {RichString} from '/$/Packages/Generic/Js/RichString/RichString.js';
 
 
 export class TextInput extends Component {

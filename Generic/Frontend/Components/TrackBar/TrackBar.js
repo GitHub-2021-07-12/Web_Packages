@@ -1,6 +1,6 @@
-import {GestureArea} from '/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
+import {GestureArea} from '/$/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
 
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
 
 
 export class TrackBar extends GestureArea {

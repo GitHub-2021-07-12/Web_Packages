@@ -1,6 +1,6 @@
-import {Component} from '/Packages/Generic/Frontend/Components/Component/Component.js';
+import {Component} from '/$/Packages/Generic/Frontend/Components/Component/Component.js';
 
-import {HttpClient} from '/Packages/Generic/Js/HttpClient/HttpClient.js';
+import {HttpClient} from '/$/Packages/Generic/Js/HttpClient/HttpClient.js';
 
 
 export class Svg extends Component {

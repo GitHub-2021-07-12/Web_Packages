@@ -1,7 +1,7 @@
-import {ScrollArea} from '/Packages/Generic/Frontend/Components/ScrollArea/ScrollArea.js';
-import {TextInput} from '/Packages/Generic/Frontend/Components/TextInput/TextInput.js';
+import {ScrollArea} from '/$/Packages/Generic/Frontend/Components/ScrollArea/ScrollArea.js';
+import {TextInput} from '/$/Packages/Generic/Frontend/Components/TextInput/TextInput.js';
 
-import {Executor} from '/Packages/Generic/Js/Executor/Executor.js';
+import {Executor} from '/$/Packages/Generic/Js/Executor/Executor.js';
 
 
 export class TextArea extends TextInput {

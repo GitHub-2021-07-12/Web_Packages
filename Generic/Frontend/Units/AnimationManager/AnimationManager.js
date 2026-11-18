@@ -1,8 +1,8 @@
-import {EventManager} from '/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
-import {Renderer} from '/Packages/Generic/Frontend/Units/Renderer/Renderer.js';
+import {EventManager} from '/$/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
+import {Renderer} from '/$/Packages/Generic/Frontend/Units/Renderer/Renderer.js';
 
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
-import {ObjectManager} from '/Packages/Generic/Js/ObjectManager/ObjectManager.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
+import {ObjectManager} from '/$/Packages/Generic/Js/ObjectManager/ObjectManager.js';
 
 
 export class AnimationManager extends Renderer {

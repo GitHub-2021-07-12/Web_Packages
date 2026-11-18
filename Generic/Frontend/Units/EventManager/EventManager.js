@@ -1,4 +1,4 @@
-import {ObjectManager} from '/Packages/Generic/Js/ObjectManager/ObjectManager.js';
+import {ObjectManager} from '/$/Packages/Generic/Js/ObjectManager/ObjectManager.js';
 
 
 export class EventManager {

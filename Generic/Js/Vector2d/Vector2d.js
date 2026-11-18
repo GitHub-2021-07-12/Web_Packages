@@ -1,4 +1,4 @@
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
 
 
 export class Vector2d {

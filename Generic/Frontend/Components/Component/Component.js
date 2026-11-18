@@ -1,10 +1,10 @@
-import {EventManager} from '/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
+import {EventManager} from '/$/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
 
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
-import {Executor} from '/Packages/Generic/Js/Executor/Executor.js';
-import {ExternalPromise} from '/Packages/Generic/Js/ExternalPromise/ExternalPromise.js';
-import {HttpClient} from '/Packages/Generic/Js/HttpClient/HttpClient.js';
-import {ObjectManager} from '/Packages/Generic/Js/ObjectManager/ObjectManager.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
+import {Executor} from '/$/Packages/Generic/Js/Executor/Executor.js';
+import {ExternalPromise} from '/$/Packages/Generic/Js/ExternalPromise/ExternalPromise.js';
+import {HttpClient} from '/$/Packages/Generic/Js/HttpClient/HttpClient.js';
+import {ObjectManager} from '/$/Packages/Generic/Js/ObjectManager/ObjectManager.js';
 
 
 export class Component extends HTMLElement {

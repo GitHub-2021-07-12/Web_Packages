@@ -1,9 +1,9 @@
-import {Component} from '/Packages/Generic/Frontend/Components/Component/Component.js';
+import {Component} from '/$/Packages/Generic/Frontend/Components/Component/Component.js';
 
-import {EventManager} from '/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
-import {Model} from '/Packages/Generic/Frontend/Units/Model/Model.js';
+import {EventManager} from '/$/Packages/Generic/Frontend/Units/EventManager/EventManager.js';
+import {Model} from '/$/Packages/Generic/Frontend/Units/Model/Model.js';
 
-import {Executor} from '/Packages/Generic/Js/Executor/Executor.js';
+import {Executor} from '/$/Packages/Generic/Js/Executor/Executor.js';
 
 
 export class Repeater extends Component {

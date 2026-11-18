@@ -1,5 +1,5 @@
-import {Component} from '/Packages/Generic/Frontend/Components/Component/Component.js';
-import {GestureArea} from '/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
+import {Component} from '/$/Packages/Generic/Frontend/Components/Component/Component.js';
+import {GestureArea} from '/$/Packages/Generic/Frontend/Components/GestureArea/GestureArea.js';
 
 
 export class Resizable extends GestureArea {

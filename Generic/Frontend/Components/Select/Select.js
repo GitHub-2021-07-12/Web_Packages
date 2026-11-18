@@ -1,9 +1,9 @@
-import {Popup} from '/Packages/Generic/Frontend/Components/Popup/Popup.js';
-import {Repeater} from '/Packages/Generic/Frontend/Components/Repeater/Repeater.js';
-import {ScrollArea} from '/Packages/Generic/Frontend/Components/ScrollArea/ScrollArea.js';
-import {TextField} from '/Packages/Generic/Frontend/Components/TextField/TextField.js';
+import {Popup} from '/$/Packages/Generic/Frontend/Components/Popup/Popup.js';
+import {Repeater} from '/$/Packages/Generic/Frontend/Components/Repeater/Repeater.js';
+import {ScrollArea} from '/$/Packages/Generic/Frontend/Components/ScrollArea/ScrollArea.js';
+import {TextField} from '/$/Packages/Generic/Frontend/Components/TextField/TextField.js';
 
-import {Common} from '/Packages/Generic/Js/Common/Common.js';
+import {Common} from '/$/Packages/Generic/Js/Common/Common.js';
 
 
 export class Select extends Repeater {
