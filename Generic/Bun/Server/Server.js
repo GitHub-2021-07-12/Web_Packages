@@ -9,9 +9,16 @@ export class Server {
     static _rootDirAlias = '$';
     static _rootDirAliasRegExp = null;
     static _routeRest = '/rest/';
+    static _routeWebSocket = '/ws';
     static _tlsDescriptor = null;
     static _tlsDir = '';
     static _tlsPort = 443;
+
+    static _responses = {
+        empty: new Response(),
+        error: new Response(null, {status: 500}),
+        notModified: new Response(null, {status: 304}),
+    };
 
 
     static init() {
@@ -37,12 +44,11 @@ export class Server {
     _pathEntry = '';
     _pathError = '';
     _port = null;
-    _responseEmpty = new Response();
-    _responseNotModified = new Response(null, {status: 304});
     _restMethods = {};
     _rootDir = '';
     _routes = {};
     _server = null;
+    _webSocketHandler = null;
 
     _routeDescriptors = {
         detailed: {},
@@ -51,8 +57,6 @@ export class Server {
         entry: [],
         error: [],
     };
-
-    _webSocketHandler = null;
 
 
     async _callRestMethod(request) {
@@ -78,15 +82,6 @@ export class Server {
             responseBody.error = 'method';
         }
 
-        request.cookies.set({
-            expires: new Date('2027-06-01 00:00:00'),
-            httpOnly: true,
-            // maxAge: 1e8,
-            name: request.params.method,
-            path: this.constructor._routeRest,
-            value: 1,
-        });
-
         return Response.json(responseBody);
     }
 
@@ -105,6 +100,7 @@ export class Server {
         this._routes = {
             [this.normalizePath(`${this.constructor._routeRest}/:scope/:method`)]: callRestMethod,
             [this.normalizePath(`${this.constructor._routeRest}/:scope/:method/:args`)]: callRestMethod,
+            [this.normalizePath(this.constructor._routeWebSocket)]: this._upgradeWebSocket.bind(this),
         };
 
         for (let k in routesDir) {
@@ -115,7 +111,7 @@ export class Server {
         }
 
         for (let routeEmpty of this._routeDescriptors.empty || []) {
-            this._routes[this.normalizePath(routeEmpty)] = this._responseEmpty;
+            this._routes[this.normalizePath(routeEmpty)] = this.constructor._responses.empty;
         }
 
         for (let routeEntry of routesEntry) {
@@ -126,7 +122,22 @@ export class Server {
             this._routes[this.normalizePath(routeError)] = sendResponseError;
         }
 
-        Object.assign(this._routes, this._routeDescriptors.detailed);
+        // Object.assign(this._routes, this._routeDescriptors.detailed);
+
+        for (let k in this._routeDescriptors.detailed) {
+            let prop = this._routeDescriptors.detailed[k];
+            this._routes[k] = prop instanceof Function ? prop.bind(this) : prop;
+        }
+    }
+
+    _normalizeWebSocketHandler() {
+        for (let k in this._webSocketHandler) {
+            let prop = this._webSocketHandler[k];
+
+            if (prop instanceof Function) {
+                this._webSocketHandler[k] = prop.bind(this);
+            }
+        }
     }
 
     _sendResponse(path, request) {
@@ -136,12 +147,18 @@ export class Server {
         else {
             let file = Bun.file(path);
             let response = file.lastModified == request.headers.get('if-none-match')
-                ? this._responseNotModified.clone()
+                ? this.constructor._responses.notModified.clone()
                 : new Response(file, {headers: {'etag': file.lastModified}})
             ;
 
             return response;
         }
+    }
+
+    _upgradeWebSocket(request) {
+        let upgraded = this._server.upgrade(request, {data: {token: request.cookies.get('token')}});
+
+        return upgraded ? null : this.constructor._responses.error.clone();
     }
 
 
@@ -174,6 +191,7 @@ export class Server {
         this._pathEntry = this.resolvePath(this._pathEntry);
         this._pathError = this.resolvePath(this._pathError);
         this._createRoutes();
+        this._normalizeWebSocketHandler();
 
         return this;
     }
@@ -195,7 +213,7 @@ export class Server {
         if (this._server) return;
 
         if (!this._port) {
-            let server = Bun.serve({routes: {'/': this._responseEmpty}});
+            let server = Bun.serve({routes: {'/': this.constructor._responses.empty}});
             this._port = server.port;
             await server.stop(true);
         }
